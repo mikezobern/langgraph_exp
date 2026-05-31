@@ -26,17 +26,44 @@ def build_graph():
 
     Return the object produced by `.compile()`.
     """
-    # TODO: implement me.
-    #
     # 1) Write the router:  def route(state) -> str  returning one of the
     #    labels you'll use in the path_map (e.g. "fizzbuzz"/"fizz"/"buzz"/"number").
     #    Remember: check divisibility by 15 BEFORE 3 and 5.
+    def route(state:State):
+        v = int(state['n'])
+        if v%15==0:
+            return "fizzbuzz"
+        elif v%3==0:
+            return "fizz"
+        elif v%5==0:
+            return "buzz"
+        else:
+            return 'number'
     # 2) Write the four branch nodes; each returns {"output": ...}.
+    def fizzbuzz(state:State):
+        return {'output':"FizzBuzz"}
+    def fizz(state:State):
+        return {'output':"Fizz"}
+    def buzz(state:State):
+        return {'output':"Buzz"}
+    def number(state:State):
+        return {'output':str(state['n'])}
     # 3) builder = StateGraph(State); add the four nodes.
+    builder = StateGraph(State)
+    builder.add_node('fizzbuzz',fizzbuzz)
+    builder.add_node('fizz',fizz)
+    builder.add_node('buzz',buzz)
+    builder.add_node('number',number)
     # 4) builder.add_conditional_edges(START, route, { ...label -> node... })
+    builder.add_conditional_edges(START, route, {'fizzbuzz':'fizzbuzz','fizz': 'fizz','buzz': 'buzz','number': 'number'})
+
     # 5) Connect every branch node to END with add_edge(node, END).
+    builder.add_edge('fizzbuzz', END)
+    builder.add_edge('fizz', END)
+    builder.add_edge('buzz', END)
+    builder.add_edge('number', END)
     # 6) return builder.compile()
-    raise NotImplementedError("Implement build_graph() — see README.md")
+    return builder.compile()
 
 
 if __name__ == "__main__":
