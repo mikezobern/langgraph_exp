@@ -12,9 +12,7 @@ from langgraph.graph import StateGraph, START, END
 
 class State(TypedDict):
     n: int
-    # TODO: make `log` ACCUMULATE across nodes instead of being overwritten.
-    #       Hint: Annotated[list[str], <reducer>].
-    log: list[str]
+    log: Annotated[list[str],add]
 
 
 def build_graph():
@@ -29,14 +27,29 @@ def build_graph():
 
     Return the object produced by `.compile()`.
     """
-    # TODO: implement me.
-    #
-    # 1) First fix the `State` above so `log` accumulates (add a reducer via Annotated).
     # 2) Write the three nodes; each returns {"n": new_n, "log": [<one entry>]}.
+    def double(state:State):
+        n = state['n']
+        return {'n': 2*n, 'log':[f"doubled to {2*n}"]}
+    def increment(state:State):
+        n = state['n']
+        return {'n': 1+n, 'log':[f"incremented to {n+1}"]}
+    def square(state:State):
+        n = state['n']
+        return {'n': n*n, 'log':[f"squared to {n*n}"]}
+
     # 3) builder = StateGraph(State); add the three nodes.
+    builder = StateGraph(State)
+    builder.add_node('double', double)
+    builder.add_node('increment', increment)
+    builder.add_node('square', square)
     # 4) Wire START -> double -> increment -> square -> END with add_edge.
-    # 5) return builder.compile()
-    raise NotImplementedError("Implement build_graph() — see README.md")
+    builder.add_edge(START, 'double')
+    builder.add_edge('double', 'increment')
+    builder.add_edge('increment', 'square')
+    builder.add_edge('square', END)
+
+    return builder.compile()
 
 
 if __name__ == "__main__":
